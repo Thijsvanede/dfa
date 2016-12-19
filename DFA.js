@@ -227,6 +227,8 @@ DFA.prototype.__addOptional__ = function(current, trace, index, identifier){
 DFA.prototype.__addStar__ = function(current, entry, identifier){
     if(entry[4])
         current.accepting = entry[4];
+    else
+        identifier = undefined;
     return current.addNext(new RegExp(entry[0]), current, identifier);
 };
 
@@ -235,8 +237,8 @@ DFA.prototype.__addStar__ = function(current, entry, identifier){
  */
 DFA.prototype.__addPlus__ = function(current, entry, identifier){
     var next = new State(this.getID(), entry[4]);
-    current.addNext(new RegExp(entry[0]), next, identifier);
-    return next.addNext(new RegExp(entry[0]), next, identifier);
+    next = current.addNext(new RegExp(entry[0]), next, identifier);
+    return next.addNext(new RegExp(entry[0]), next);
 };
 
 /**

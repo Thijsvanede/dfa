@@ -47,8 +47,10 @@ State.prototype.getIdentifier = function(){
  * @param override: if true, it overrides current identifier, otherwise it throws an error.
  */
 State.prototype.setIdentifier = function(identifier, override){
+    if(identifier === undefined)
+        return;
     if(this.identifier !== undefined && this.identifier !== identifier && override !== true)
-        throw 'State already has identifier: ' + this.identifier;
+        throw 'Unable to add identifier ' + identifier + ', state already has identifier: ' + this.identifier;
     else
         this.identifier = identifier;
 };
@@ -59,6 +61,8 @@ State.prototype.setIdentifier = function(identifier, override){
  */
 State.prototype.addNext = function(transition, state, identifier){
     transition = new RegExp('^' + transition.source + '$');
+    
+    console.log('Adding ' + transition + ' to ' + this.toString());
     
     switch(true){
         /** Case of existing transition to self. **/
