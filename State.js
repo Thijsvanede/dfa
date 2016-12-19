@@ -203,6 +203,8 @@ var containsCharExp = function(set, char){
 var containsChar = function(set, char){
     if(char === '\\')
         char = '\\\\';
+    else if(char === '-')
+        char = '\\-';
     return hasOverlap(set, '['+ char + ']');
 };
 
@@ -214,26 +216,33 @@ var hasOverlapExp = function(setA, setB){
  * Check if sets have overlap.
  */
 var hasOverlap = function(setA, setB){
+    
     var SetA = new Set();
     var SetB = new Set();
     
     for(var i = 1; i < setA.length-1; i++)
-        switch(setA[i]){
-            case '\\':
+        switch(true){
+            case setA[i] === '\\':
                 SetA.add(setA[i+1]);
                 i++;
                 break;
+            case setA[i+1] === '-':
+                SetA.add([setA[i], setA[i+2]]);
+                i += 2;
             default:
                 SetA.add(setA[i]);
                 break;
         }
         
     for(i = 1; i < setB.length-1; i++)
-        switch(setB[i]){
-            case '\\':
+        switch(true){
+            case setB[i] === '\\':
                 SetB.add(setB[i+1]);
                 i++;
                 break;
+            case setB[i+1] === '-':
+                SetB.add([setB[i], setB[i+2]]);
+                i += 2;
             default:
                 SetB.add(setB[i]);
                 break;
@@ -241,6 +250,51 @@ var hasOverlap = function(setA, setB){
     
     var shortest = SetA.size < SetB ? SetA : SetB;
     var longest = SetA.size < SetB ? SetB : SetA;
+    
+    /** Check if in range **/
+    for(var shortestItem of shortest.values()){
+        if(shortestItem instanceof Array){
+            var smallest = shortestItem.sort();
+            var largest = smallest[1];
+                smallest = smallest[0];
+                
+            for(var longestItem of longest.values()){
+                if(longestItem instanceof Array){
+                    var smallestLong = longestItem.sort();
+                    var largestLong = smallestLong[1];
+                        smallestLong = smallestLong[0];
+                        
+                    if(smallest <= largestLong && largest >= smallestLong)
+                        return true;
+                }else{
+                    if(longestItem >= smallest && longestItem <= largest)
+                        return true;
+                }
+            }
+        }
+    }
+    
+    for(shortestItem of longest.values()){
+        if(shortestItem instanceof Array){
+            smallest = shortestItem.sort();
+            largest = smallest[1];
+            smallest = smallest[0];
+                
+            for(longestItem of shortest.values()){
+                if(longestItem instanceof Array){
+                    smallestLong = longestItem.sort();
+                    largestLong = smallestLong[1];
+                        smallestLong = smallestLong[0];
+                        
+                    if(smallest <= largestLong && largest >= smallestLong)
+                        return true;
+                }else{
+                    if(longestItem >= smallest && longestItem <= largest)
+                        return true;
+                }
+            }
+        }
+    }
     
     for(var char of shortest.values()){
         if(longest.has(char))
