@@ -1,0 +1,21 @@
+{
+  "name": "regex-to-dfa",
+  "version": "1.0.4",
+  "description": "Creates a Deterministic Finite Automata (DFA) from regular expressions",
+  "main": "DFA.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dfa",
+    "regular",
+    "expression",
+    "regex",
+    "regexp"
+  ],
+  "dependencies": {
+    "hashmap": "^2.0.6"
+  },
+  "author": "Thijs van Ede",
+  "license": "MIT"
+}
