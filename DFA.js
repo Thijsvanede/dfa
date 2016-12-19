@@ -146,7 +146,6 @@ DFA.prototype.__createDFA__ = function(tokens, initial, identifier){
                         /** Method for handeling regular groups, i.e. without quantifiers. **/    
                         default:
                             //TODO
-                            console.log(entry[0]);
                             throw 'GROUPs are currently not supported.';
                     }
                 

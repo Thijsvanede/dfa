@@ -62,8 +62,6 @@ State.prototype.setIdentifier = function(identifier, override){
 State.prototype.addNext = function(transition, state, identifier){
     transition = new RegExp('^' + transition.source + '$');
     
-    console.log('Adding ' + transition + ' to ' + this.toString());
-    
     switch(true){
         /** Case of existing transition to self. **/
         case this.isDefinedSelf(transition):
@@ -182,7 +180,6 @@ State.prototype.isDefinedInSet = function(transition){
     var set = transition.source.startsWith('^[');
     
     for(var entry of this.next.keys()){
-        //console.log('isDefinedInSet [' + transition + ']' + ' == ' + entry);
         if(entry.source.startsWith('^[')){
             if(set && hasOverlapExp(entry, transition))
                 return true;
