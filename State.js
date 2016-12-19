@@ -47,7 +47,7 @@ State.prototype.getIdentifier = function(){
  * @param override: if true, it overrides current identifier, otherwise it throws an error.
  */
 State.prototype.setIdentifier = function(identifier, override){
-    if(this.identifier !== undefined && override !== true)
+    if(this.identifier !== undefined && this.identifier !== identifier && override !== true)
         throw 'State already has identifier: ' + this.identifier;
     else
         this.identifier = identifier;
