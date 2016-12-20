@@ -64,27 +64,33 @@ State.prototype.addNext = function(transition, state, identifier){
     
     switch(true){
         /** Case of existing transition to self. **/
-        case this.isDefinedSelf(transition):
+        case this.__isDefinedSelf__(transition):
             if(state === this){
                 state.setIdentifier(identifier);
                 return state;
             }else
                 throw 'Violation of determinism: \'' + transition.source.substring(1, transition.source.length-1) + '\' already defined to self.';
         
+        /** Case of existing wildcard transition. **/
+        case this.__isDefinedWildcard__(transition):
+            throw 'Violation of determinism: wildcard \'.\' clashes with other transitions.';
+        
         /** Case of existing transition. **/
-        case this.isDefined(transition):
+        case this.__isDefined__(transition):
             if(state.isAccepting()){
                 this.getNext(transition.source.substring(1, transition.source.length-1)).accepting = true;
                 this.getNext(transition.source.substring(1, transition.source.length-1)).setIdentifier(identifier);
             }
+            if(this.getNext(transition.source.substring(1, transition.source.length-1)) === undefined)
+                return this.next.get(transition);
             return this.getNext(transition.source.substring(1, transition.source.length-1));
             
         /** Case of set containing existing transition. **/
-        case this.isPartleyDefined(transition):
+        case this.__isPartleyDefined__(transition):
             throw 'Violation of determinism: \'' + transition.source.substring(1, transition.source.length-1) + '\' already defined.';
             
         /** Case of existing transition in set. **/
-        case this.isDefinedInSet(transition):
+        case this.__isDefinedInSet__(transition):
             throw 'Violation of determinism: ' + transition.source.substring(1, transition.source.length-1) + ' already defined in set.';
             
         /** Normal case. **/
@@ -137,32 +143,40 @@ State.prototype.toString = function(){
 /**
  * Check if transition is already specified to self.
  */
-State.prototype.isDefinedSelf = function(transition){
+State.prototype.__isDefinedSelf__ = function(transition){
     return this.next.get(transition) === this;
+};
+
+/**
+ * Check if wildcard '.' is already defined as a transition.
+ * Or transition is wildcard and other transitions are already defined.
+ */
+State.prototype.__isDefinedWildcard__ = function(transition){
+    return this.next.get(new RegExp(/^.$/)) !== undefined || (transition.source === '^.$' && this.next.count() !== 0);
 };
 
 /**
  * Check if transition is already specified
  */
-State.prototype.isDefined = function(transition){
+State.prototype.__isDefined__ = function(transition){
     return this.next.get(transition) !== undefined;
 };
 
 /**
  * Check if (part of) transition is already specified as next transition.
  */
-State.prototype.isPartleyDefined = function(transition){
+State.prototype.__isPartleyDefined__ = function(transition){
     switch(true){
         /** Case where entire transition is already defined. **/
-        case this.isDefined(transition):
+        case this.__isDefined__(transition):
             return true;
         
         /** Case where transition is set. **/
         case transition.source.startsWith('^['):
             for(var trans of this.next.keys()){
-                if(trans.source.startsWith('^[') && hasOverlapExp(trans, transition))
+                if(trans.source.startsWith('^[') && __hasOverlapExp__(trans, transition))
                     return true;
-                else if(containsCharExp(transition, trans))
+                else if(__containsCharExp__(transition, trans))
                     return true;
             }
             return false;
@@ -176,14 +190,14 @@ State.prototype.isPartleyDefined = function(transition){
 /**
  * Check if transition is already defined within other sets.
  */
-State.prototype.isDefinedInSet = function(transition){
+State.prototype.__isDefinedInSet__ = function(transition){
     var set = transition.source.startsWith('^[');
     
     for(var entry of this.next.keys()){
         if(entry.source.startsWith('^[')){
-            if(set && hasOverlapExp(entry, transition))
+            if(set && __hasOverlapExp__(entry, transition))
                 return true;
-            else if(!set && containsCharExp(entry, transition))
+            else if(!set && __containsCharExp__(entry, transition))
                 return true;
         }
     }
@@ -193,29 +207,29 @@ State.prototype.isDefinedInSet = function(transition){
 /**
  * Check if set contains char.
  */
-var containsCharExp = function(set, char){
-    return containsChar(set.source.substring(1, set.source.length-1), char.source.substring(1, char.source.length-1));
+var __containsCharExp__ = function(set, char){
+    return __containsChar__(set.source.substring(1, set.source.length-1), char.source.substring(1, char.source.length-1));
 };
 
 /**
  * Check if set contains char.
  */
-var containsChar = function(set, char){
+var __containsChar__ = function(set, char){
     if(char === '\\')
         char = '\\\\';
     else if(char === '-')
         char = '\\-';
-    return hasOverlap(set, '['+ char + ']');
+    return __hasOverlap__(set, '['+ char + ']');
 };
 
-var hasOverlapExp = function(setA, setB){
-    return hasOverlap(setA.source.substring(1, setA.source.length-1), setB.source.substring(1, setB.source.length-1));
+var __hasOverlapExp__ = function(setA, setB){
+    return __hasOverlap__(setA.source.substring(1, setA.source.length-1), setB.source.substring(1, setB.source.length-1));
 };
 
 /**
  * Check if sets have overlap.
  */
-var hasOverlap = function(setA, setB){
+var __hasOverlap__ = function(setA, setB){
     
     var SetA = new Set();
     var SetB = new Set();
