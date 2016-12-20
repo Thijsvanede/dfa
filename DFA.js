@@ -31,6 +31,13 @@ var GROUP       = 'GROUP';
 /**                 Functions                    **/
 /**************************************************/
 /**
+ * Method to retrieve the number of nodes in the DFA.
+ */
+DFA.prototype.size = function(){
+    return this.ID;
+};
+
+/**
  * Method stating whether given input yields accepting state.
  */
 DFA.prototype.accepts = function(transitions){

@@ -1,6 +1,6 @@
 {
   "name": "regex-to-dfa",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Creates a Deterministic Finite Automata (DFA) from regular expressions",
   "main": "DFA.js",
   "scripts": {
